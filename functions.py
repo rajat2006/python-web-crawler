@@ -6,7 +6,7 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 from cfg import root_url, file_name_length, html_files_path, max_link_limits
 
-# function for creating database -> done - working
+# function for creating database
 def initialize_database():
     print("Initializing database with the first entry")
 
@@ -29,7 +29,7 @@ def initialize_database():
 
     print("Database initialized with the first entry")
 
-# function to insert information of a link into the database - done - working
+# function to insert information of a link into the database
 def insert_into_database(doc):
     myclient = pymongo.MongoClient('localhost', 27017)
     mydb = myclient["crawlerdb"]
@@ -42,7 +42,7 @@ def insert_into_database(doc):
     print("Inserting link : {} into the database".format(doc['link']))
     mycol.insert_one(doc)
         
-# function to update document of a particuler link after it has been scraped - done - working
+# function to update document of a particuler link after it has been scraped
 def update_database(info):
     print("Updating database for the link : {}".format(info['link']))
     myclient = pymongo.MongoClient('localhost', 27017)
@@ -62,14 +62,14 @@ def update_database(info):
     }
     mycol.find_one_and_update(query, new_info)
 
-# generate random string for file name of the specified length (file_name_length) - done - working
+# generate random string for file name of the specified length (file_name_length)
 def generate_random_string():
     letters = string.ascii_lowercase
     strr = ''.join(random.choice(letters) for i in range(file_name_length))
     return strr
 
 
-# function to get link from the anchor tag - done - working
+# function to get link from the anchor tag 
 def get_link(s:str, source_link:str):
     # print(s)
     try:
@@ -85,7 +85,7 @@ def get_link(s:str, source_link:str):
     else:
         return link
 
-# check if the document needs to be crawled or not - done - working
+# check if the document needs to be crawled or not
 def check_doc(doc):
     cur_date = datetime.now()
     if doc['lastCrawledDate'] is None:
@@ -99,7 +99,7 @@ def check_doc(doc):
         else:
             return False
 
-# function to store html file of a page and update its document is database - done - working
+# function to store html file of a page and update its document is database 
 def store_html(text:str, link:str):
     print("Storing html file for the link : {}".format(link))
     myclient = pymongo.MongoClient('localhost', 27017)
