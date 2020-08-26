@@ -1,3 +1,5 @@
+# File for testing purpose
+
 from cfg import root_url
 from functions import scrape_url, initialize_database
 import pymongo
