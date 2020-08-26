@@ -2,24 +2,10 @@ import requests
 import pymongo
 import time
 import threading
-from cfg import root_url, num_parallel_threads
-from functions import initialize_database, scrape_url, check_doc
+from cfg import root_url, num_parallel_threads, mongo_conn_url, mongo_conn_port
+from functions import initialize_database, scrape_url, check_doc, get_connection
 
-# initialize database with the first entry (root_url)
-initialize_database()
-
-"""
-starting an infinte loop to scrape all urls
-present in the database that have not been scraped in the last 24 hours
-
-"""
-
-myclient = pymongo.MongoClient('localhost', 27017)
-mydb = myclient['crawlerdb']
-mycol = mydb['Links']
-docs = mycol.find({})
-print(len(list(docs)))
-
+# function to run threads
 def run_threads(threads):
     # print("Running threads in parallel")
     for thread in threads:
@@ -27,11 +13,24 @@ def run_threads(threads):
     for thread in threads:
         thread.join()
 
-print("----- Starting the crawling process -----")
 
+mycol = get_connection()
+# initialize database with the first entry (root_url)
+initialize_database(mycol)
+
+
+print("----- Starting the crawling process -----")
+docs = mycol.find({})
 finished = False
 max_col = len(list(docs))
 col_done = 0
+
+"""
+starting an infinte loop to scrape all urls
+present in the database that have not been scraped in the last 24 hours
+
+"""
+docs.rewind()
 while True:
     threads = []
     for i in range(num_parallel_threads):
@@ -42,7 +41,7 @@ while True:
         else:
             toScrape = check_doc(doc)
             if toScrape:
-                thread = threading.Thread(target=scrape_url(doc['link']))
+                thread = threading.Thread(target=scrape_url, args=(doc['link'], get_connection(),))
                 threads.append(thread)
             col_done += 1
 
